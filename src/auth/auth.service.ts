@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -6,11 +10,6 @@ import * as bcrypt from 'bcrypt';
 
 import { User } from '@prisma/client';
 import { LoginUserDto } from 'src/dto/login-user.dto';
-
-interface userLoginInterface {
-  email: string;
-  password: string;
-}
 
 @Injectable()
 export class AuthService {
@@ -32,9 +31,7 @@ export class AuthService {
 
   private generateToken(user: User) {
     const payload = { email: user.email, id: user.id };
-    return {
-      token: this.jwtService.sign(payload),
-    };
+    return this.jwtService.sign(payload);
   }
 
   async login(loginDto: LoginUserDto) {
@@ -49,7 +46,7 @@ export class AuthService {
     if (user && passwordEquals) {
       delete user.password;
       const token = this.generateToken(user);
-      return { token };
+      return token;
     }
     throw new UnauthorizedException({ message: 'Uncorrect email or password' });
   }
