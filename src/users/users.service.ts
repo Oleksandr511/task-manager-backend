@@ -20,4 +20,10 @@ export class UsersService {
         throw new ConflictException('Email already exists');
     }
   }
+
+  async getUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
 }
