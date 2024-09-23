@@ -7,9 +7,11 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 import { User } from '@prisma/client';
 import { LoginUserDto } from 'src/dto/login-user.dto';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -49,5 +51,10 @@ export class AuthService {
       return token;
     }
     throw new UnauthorizedException({ message: 'Uncorrect email or password' });
+  }
+
+  async decorateToken(token: string): Promise<JwtPayload> {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    return decodedToken as JwtPayload;
   }
 }

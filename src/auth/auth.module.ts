@@ -8,15 +8,15 @@ import { AuthGuard } from './auth.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, UsersService, PrismaService],
+  providers: [AuthService, UsersService, PrismaService, AuthGuard],
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET || 'SECRET',
       signOptions: {
         expiresIn: '24h',
       },
     }),
   ],
-  exports: [JwtModule],
+  exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}

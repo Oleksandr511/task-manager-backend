@@ -22,13 +22,13 @@ model User {
 }
 
 model Task {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
   content   String
   priority  String
-  status    String @default("pending")
-  author    User?  @relation(fields: [authorId], references: [id])
-  authorId  Int?
-  createdAt String
-  updatedAt String
+  status    String   @default("pending")
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
