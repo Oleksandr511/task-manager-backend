@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/dto/create-user.dto';
 import { Response } from 'express';
@@ -27,6 +34,7 @@ export class AuthController {
   }
 
   @Post('/login')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   async login(
     @Body() loginDto: LoginUserDto,
     @Res({ passthrough: true }) response: Response,

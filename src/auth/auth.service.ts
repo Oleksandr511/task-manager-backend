@@ -49,7 +49,9 @@ export class AuthService {
       const token = this.generateToken(user);
       return token;
     }
-    throw new UnauthorizedException({ message: 'Uncorrect email or password' });
+    throw new UnauthorizedException({
+      message: 'Uncorrected email or password',
+    });
   }
 
   async decorateToken(token: string): Promise<JwtPayload> {
