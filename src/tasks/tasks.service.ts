@@ -2,10 +2,11 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from 'src/dto/create-task.dto';
-import { Task } from '@prisma/client';
+import { Prisma, Task } from '@prisma/client';
 import { Status } from 'src/enum/status.enum';
 import { Priority } from 'src/enum/priority.enum';
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
@@ -69,5 +70,20 @@ export class TasksService {
       },
       data,
     });
+  }
+
+  async deleteTask(
+    where: Prisma.TaskWhereUniqueInput,
+  ): Promise<{ message: string }> {
+    const task = await this.prisma.task.findUnique({ where });
+    if (!task) {
+      throw new NotFoundException(`Task with id ${where.id} not found.`);
+    }
+    await this.prisma.task.delete({
+      where,
+    });
+    return {
+      message: 'success',
+    };
   }
 }

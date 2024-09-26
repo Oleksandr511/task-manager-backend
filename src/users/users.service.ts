@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/dto/create-user.dto';
 
@@ -25,5 +25,13 @@ export class UsersService {
     return this.prisma.user.findUnique({
       where: { email },
     });
+  }
+
+  async deleteUser(id: number) {
+    console.log(id);
+    await this.prisma.task.deleteMany({
+      where: { authorId: id },
+    });
+    return this.prisma.user.delete({ where: { id: id } });
   }
 }

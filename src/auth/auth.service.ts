@@ -58,4 +58,8 @@ export class AuthService {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     return decodedToken as JwtPayload;
   }
+
+  async deleteUser(id: number) {
+    return await this.usersService.deleteUser(id);
+  }
 }

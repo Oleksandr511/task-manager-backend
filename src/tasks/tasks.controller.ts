@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -17,6 +18,7 @@ import { AuthService } from 'src/auth/auth.service';
 
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
 import { GetTaskFilterDto } from 'src/dto/task-filter.dto';
+import { Task } from '@prisma/client';
 
 @Controller('tasks')
 export class TasksController {
@@ -29,14 +31,13 @@ export class TasksController {
   async getUserTasks(
     @Query(new ValidationPipe({ transform: true })) filterDto: GetTaskFilterDto,
     @Request() req,
-  ) {
+  ): Promise<Task[]> {
     const token = req.cookies.token;
     if (!token) {
       throw new ForbiddenException('No token provided');
     }
 
     const decodedToken = await this.authService.decorateToken(token);
-    console.log(decodedToken);
     const authorId = decodedToken['id'];
 
     return this.tasksService.getTasks(
@@ -47,7 +48,10 @@ export class TasksController {
   }
 
   @Post('/new')
-  async create(@Request() req, @Body() createTaskDto: CreateTaskDto) {
+  async create(
+    @Request() req,
+    @Body() createTaskDto: CreateTaskDto,
+  ): Promise<Task> {
     const token = req.cookies.token;
     if (!token) {
       throw new ForbiddenException('No token provided');
@@ -66,7 +70,6 @@ export class TasksController {
     @Param('id') id: number,
     @Request() req,
   ) {
-    console.log(data);
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('Something went wrong');
     }
@@ -79,5 +82,13 @@ export class TasksController {
     const authorId = decodedToken['id'];
 
     return this.tasksService.update(data, authorId, id);
+  }
+
+  @Delete('task/:id')
+  async deleteTask(@Param('id') id: string): Promise<{ message: string }> {
+    await this.tasksService.deleteTask({ id: Number(id) });
+    return {
+      message: 'success',
+    };
   }
 }
