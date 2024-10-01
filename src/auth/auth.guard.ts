@@ -10,12 +10,10 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log('hi');
     const request = context.switchToHttp().getRequest();
-    const refreshToken = request.cookies['refreshToken']?.refreshToken;
-    const accessToken = request.cookies['accessToken']?.accessToken;
-    console.log('Access Token:', accessToken);
-    console.log('Refresh Token:', refreshToken);
+    const refreshToken = request.cookies.refreshToken;
+    const accessToken = request.cookies.accessToken;
+
     if (!refreshToken || !accessToken) {
       throw new UnauthorizedException();
     }

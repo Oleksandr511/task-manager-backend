@@ -10,6 +10,7 @@ import {
   Query,
   Request,
   UnauthorizedException,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -21,8 +22,10 @@ import { UpdateTaskDto } from 'src/dto/update-task.dto';
 import { GetTaskFilterDto } from 'src/dto/task-filter.dto';
 import { Task } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('tasks')
+@UseGuards(AuthGuard)
 export class TasksController {
   constructor(
     private readonly tasksService: TasksService,
