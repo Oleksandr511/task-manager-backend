@@ -11,9 +11,9 @@ import { AuthGuard } from './auth.guard';
   providers: [AuthService, UsersService, PrismaService, AuthGuard],
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'SECRET',
+      secret: process.env.ACCESS_TOKEN_SECRET || 'SECRET',
       signOptions: {
-        expiresIn: '24h',
+        expiresIn: '15m',
       },
     }),
   ],

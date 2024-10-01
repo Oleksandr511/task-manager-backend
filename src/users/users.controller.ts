@@ -20,4 +20,13 @@ export class UsersController {
   getProfile(@Request() req) {
     return req.user;
   }
+  @Get('/profile/email')
+  getProfileByEmail(@Body() email: string) {
+    console.log(email);
+    return this.usersService.getUserByEmail(email);
+  }
+  @Get()
+  getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
 }

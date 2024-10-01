@@ -23,8 +23,12 @@ export class UsersService {
 
   async getUserByEmail(email: string) {
     return this.prisma.user.findUnique({
-      where: { email },
+      where: { email: email },
     });
+  }
+
+  async getAllUsers() {
+    return this.prisma.user.findMany();
   }
 
   async deleteUser(id: number) {

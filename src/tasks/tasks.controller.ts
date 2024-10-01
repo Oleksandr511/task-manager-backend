@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   Request,
+  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
 import { GetTaskFilterDto } from 'src/dto/task-filter.dto';
 import { Task } from '@prisma/client';
+import * as jwt from 'jsonwebtoken';
 
 @Controller('tasks')
 export class TasksController {
@@ -32,35 +34,35 @@ export class TasksController {
     @Query(new ValidationPipe({ transform: true })) filterDto: GetTaskFilterDto,
     @Request() req,
   ): Promise<Task[]> {
-    const token = req.cookies.token;
-    if (!token) {
-      throw new ForbiddenException('No token provided');
+    const at = req.cookies.accessToken;
+    if (!at) {
+      throw new UnauthorizedException('Not authorized');
     }
+    const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
 
-    const decodedToken = await this.authService.decorateToken(token);
-    const authorId = decodedToken['id'];
+    const authorId = payload.sub;
 
     return this.tasksService.getTasks(
-      authorId,
+      Number(authorId),
       filterDto.status,
       filterDto.priority,
     );
   }
 
-  @Post('/new')
+  @Post('new')
   async create(
     @Request() req,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<Task> {
-    const token = req.cookies.token;
-    if (!token) {
-      throw new ForbiddenException('No token provided');
+    if (req.cookies.accessToken === undefined) {
+      throw new UnauthorizedException('Not authorized');
     }
-    const decodedToken = await this.authService.decorateToken(token);
-    console.log(decodedToken);
-    const authorId = decodedToken['id'];
+    const at = req.cookies.accessToken;
+    const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
+    console.log(payload);
+    const authorId = payload.sub;
 
-    return this.tasksService.create({ ...createTaskDto }, authorId);
+    return this.tasksService.create({ ...createTaskDto }, Number(authorId));
   }
 
   @Post('/update/:id')
@@ -73,15 +75,20 @@ export class TasksController {
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('Something went wrong');
     }
-    const token = req.cookies.token;
+    const token = req.cookies.accessToken;
     if (!token) {
       throw new ForbiddenException('Not authorized');
     }
-    const decodedToken = await this.authService.decorateToken(token);
-    console.log(decodedToken);
-    const authorId = decodedToken['id'];
+    try {
+      const at = req.cookies.accessToken;
+      const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
+      const authorId = payload.sub;
 
-    return this.tasksService.update(data, authorId, id);
+      return this.tasksService.update(data, Number(authorId), id);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   @Delete('task/:id')

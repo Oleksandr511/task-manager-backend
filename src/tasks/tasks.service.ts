@@ -41,7 +41,7 @@ export class TasksService {
     return await this.prisma.task.create({
       data: {
         ...data,
-        authorId,
+        authorId: authorId,
       },
     });
   }
