@@ -17,12 +17,20 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('/profile')
   getProfile(@Request() req) {
-    return req.user;
+    console.log('here');
+    console.log(req.user);
+    return this.usersService.getUserById(req.user.sub);
   }
   @Get('/profile/email')
   getProfileByEmail(@Body() email: string) {
     console.log(email);
     return this.usersService.getUserByEmail(email);
+  }
+  @Get('profile/user')
+  getUserProfile(@Request() req) {
+    console.log('1');
+    console.log(req.user);
+    // return this.usersService.getUserByUser(user);
   }
   @Get()
   getAllUsers() {

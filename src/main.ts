@@ -6,12 +6,21 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as fs from 'fs';
 
 async function bootstrap() {
-  const PORT = process.env.PORT || 4000;
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  const PORT = process.env.PORT || 8000;
   const httpsOptions = {
     key: fs.readFileSync('./secrets/cert.key'),
     cert: fs.readFileSync('./secrets/cert.crt'),
   };
-  const app = await NestFactory.create(AppModule, { httpsOptions });
+
+  const app = await NestFactory.create(AppModule);
+  // app.enableCors({
+  //   // origin: 'http://127.0.0.1:8081',
+  //   // origin: 'http://10.0.2.2:8081',
+  //   origin: '*',
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  //   credentials: true, // Якщо ти використовуєш кукі або сесії
+  // });
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
 

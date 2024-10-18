@@ -7,6 +7,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Request,
   UnauthorizedException,
@@ -37,14 +38,14 @@ export class TasksController {
     @Query(new ValidationPipe({ transform: true })) filterDto: GetTaskFilterDto,
     @Request() req,
   ): Promise<Task[]> {
-    const at = req.cookies.accessToken;
-    if (!at) {
+    const authorId = req.user.sub;
+    if (!authorId) {
       throw new UnauthorizedException('Not authorized');
     }
-    const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
+    // const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
 
-    const authorId = payload.sub;
-
+    // const authorId = payload.sub;
+    console.log('get tasks');
     return this.tasksService.getTasks(
       Number(authorId),
       filterDto.status,
@@ -57,18 +58,21 @@ export class TasksController {
     @Request() req,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<Task> {
-    if (req.cookies.accessToken === undefined) {
-      throw new UnauthorizedException('Not authorized');
-    }
-    const at = req.cookies.accessToken;
-    const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
-    console.log(payload);
-    const authorId = payload.sub;
+    // if (req.cookies.accessToken === undefined) {
+    //   throw new UnauthorizedException('Not authorized');
+    // }
+    // const at = req.cookies.accessToken;
+    // console.log('at', at);
+    // console.log(req)
+    // const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
+    // console.log(payload);
+    // const authorId = payload.sub;
+    const authorId = req.user.sub;
 
     return this.tasksService.create({ ...createTaskDto }, Number(authorId));
   }
 
-  @Post('/update/:id')
+  @Put('/update/:id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async update(
     @Body() data: UpdateTaskDto,
@@ -78,14 +82,14 @@ export class TasksController {
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('Something went wrong');
     }
-    const token = req.cookies.accessToken;
-    if (!token) {
-      throw new ForbiddenException('Not authorized');
-    }
+    // const token = req.headers.accessToken;
+    // if (!token) {
+    //   throw new ForbiddenException('Not authorized');
+    // }
     try {
-      const at = req.cookies.accessToken;
-      const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
-      const authorId = payload.sub;
+      // const at = req.cookies.accessToken;
+      // const payload = jwt.verify(at, process.env.ACCESS_TOKEN_SECRET);
+      const authorId = req.user.sub;
 
       return this.tasksService.update(data, Number(authorId), id);
     } catch (error) {
